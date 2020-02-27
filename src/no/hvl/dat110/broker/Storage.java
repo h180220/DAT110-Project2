@@ -67,6 +67,12 @@ public class Storage {
 	}
 
 	public void createTopic(String topic) {
+		
+		if(!subscriptions.containsKey(topic)) {
+			Logger.log(topic);	// Tror denne kanskje er feil......
+			Set<String> subscribers = ConcurrentHashMap.newKeySet();
+			subscriptions.put(topic, subscribers);
+		}
 
 		// TODO: create topic in the storage
 

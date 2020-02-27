@@ -11,6 +11,12 @@ public class TemperatureDevice {
 
 		// simulated / virtual temperature sensor
 		TemperatureSensor sn = new TemperatureSensor();
+		
+		Client client = new Client("temperatursensor", Common.BROKERHOST, Common.BROKERPORT);
+		client.connect();
+		client.publish("temperature", Integer.toString(sn.read()));
+		
+		client.disconnect();
 
 		// TODO - start
 
@@ -23,8 +29,6 @@ public class TemperatureDevice {
 		// TODO - end
 
 		System.out.println("Temperature device stopping ... ");
-
-		throw new UnsupportedOperationException(TODO.method());
 
 	}
 }
