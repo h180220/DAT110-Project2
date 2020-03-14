@@ -109,6 +109,9 @@ public class Dispatcher extends Stopable {
 	public void onCreateTopic(CreateTopicMsg msg) {
 
 		Logger.log("onCreateTopic:" + msg.toString());
+		
+		String topic = msg.getTopic();
+		Storage.createTopic(topic); 
 
 		// TODO: create the topic in the broker storage
 		// the topic is contained in the create topic message
