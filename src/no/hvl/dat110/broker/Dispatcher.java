@@ -2,6 +2,7 @@ package no.hvl.dat110.broker;
 
 import java.util.Set;
 import java.util.Collection;
+import java.util.Iterator;
 
 import no.hvl.dat110.common.TODO;
 import no.hvl.dat110.common.Logger;
@@ -102,8 +103,23 @@ public class Dispatcher extends Stopable
 
 		Logger.log("onConnect:" + msg.toString());
 
-		storage.addClientSession(user, connection);
-
+		
+		
+		Set<PublishMsg> messages = storage.getBufferedMessages(user);
+		
+		if (messages == null)
+		{
+			storage.addClientSession(user, connection);
+		}
+		
+		else 
+		{
+			storage.addClientSession(user, connection);
+			for (Message m : messages)
+			{
+				storage.getSession(user).send(m);
+			}
+		}
 	}
 
 	// called by dispatch upon receiving a disconnect message
@@ -121,7 +137,7 @@ public class Dispatcher extends Stopable
 	public void onCreateTopic(CreateTopicMsg msg)
 	{
 		Logger.log("onCreateTopic:" + msg.toString());
-		
+
 		storage.createTopic(msg.getTopic());
 
 	}
@@ -165,13 +181,25 @@ public class Dispatcher extends Stopable
 
 		String topic = msg.getTopic();
 
-		Set<String> set = storage.getSubscribers(topic);
+		Set<String> subs = storage.getSubscribers(topic);
 
-		for (String s : set)
+		if (subs == null)
 		{
-			if (storage.getSession(s) != null)
+			return;
+		}
+
+		Iterator<String> itr = subs.iterator();
+
+		while (itr.hasNext())
+		{
+			String s = itr.next();
+			ClientSession session = storage.getSession(s);
+			if (session != null)
 			{
-				storage.getSession(s).send(msg);
+				session.send(msg);
+			} else
+			{
+				storage.addToBufferedMessages(s, msg);
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import no.hvl.dat110.common.TODO;
+import no.hvl.dat110.messages.PublishMsg;
 import no.hvl.dat110.common.Logger;
 import no.hvl.dat110.messagetransport.Connection;
 
@@ -19,11 +20,14 @@ public class Storage
 	// maps from user to corresponding client session object
 
 	protected ConcurrentHashMap<String, ClientSession> clients;
+	
+	protected ConcurrentHashMap<String, Set<PublishMsg>> bufferedMessages;
 
 	public Storage()
 	{
 		subscriptions = new ConcurrentHashMap<String, Set<String>>();
 		clients = new ConcurrentHashMap<String, ClientSession>();
+		bufferedMessages = new ConcurrentHashMap<String, Set<PublishMsg>>();
 	}
 
 	public Collection<ClientSession> getSessions()
@@ -31,6 +35,20 @@ public class Storage
 		return clients.values();
 	}
 
+	public void addToBufferedMessages(String user, PublishMsg msg)
+	{
+		Set<PublishMsg> message = ConcurrentHashMap.newKeySet();
+		message.add(msg);
+		bufferedMessages.put(user, message);
+	}
+	
+	public Set<PublishMsg> getBufferedMessages(String user)
+	{
+		Set<PublishMsg> messages = bufferedMessages.get(user);
+		bufferedMessages.clear();
+		return messages;
+	}
+	
 	public Set<String> getTopics()
 	{
 
@@ -51,7 +69,7 @@ public class Storage
 
 	public Set<String> getSubscribers(String topic)
 	{
-
+		
 		return (subscriptions.get(topic));
 
 	}
@@ -91,10 +109,13 @@ public class Storage
 
 	public void addSubscriber(String user, String topic)
 	{
-
-		Set<String> set = subscriptions.get(topic);
-		set.add(user);
-		subscriptions.put(topic, set);
+		
+		if (subscriptions.containsKey(topic))
+		{
+			Set<String> set = subscriptions.get(topic);
+			set.add(user);
+			subscriptions.replace(topic, set);
+		}
 
 	}
 
