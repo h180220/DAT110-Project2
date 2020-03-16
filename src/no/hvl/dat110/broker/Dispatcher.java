@@ -120,12 +120,8 @@ public class Dispatcher extends Stopable
 
 	public void onCreateTopic(CreateTopicMsg msg)
 	{
-
 		Logger.log("onCreateTopic:" + msg.toString());
 		
-		String topic = msg.getTopic();
-		Storage.createTopic(topic); 
-
 		storage.createTopic(msg.getTopic());
 
 	}

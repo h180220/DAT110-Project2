@@ -28,13 +28,7 @@ public abstract class Message
 		return user;
 	}
 
-	@Override
-<<<<<<< HEAD
-	public String toString()
-	{
-=======
 	public String toString() {
->>>>>>> 60863c759fcab627ede78c7688d436c55498cee0
 		return "Message [type = " + type + ", user = " + user + "]";
 	};
 

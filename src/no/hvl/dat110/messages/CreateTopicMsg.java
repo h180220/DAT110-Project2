@@ -21,13 +21,9 @@ public class CreateTopicMsg extends Message
 		this.topic = topic;
 	}
 
-	@Override
-<<<<<<< HEAD
-	public String toString()
-	{
-=======
+
 	public String toString() {
->>>>>>> 60863c759fcab627ede78c7688d436c55498cee0
+
 		return "CreateTopicMsg [topic = " + topic + super.toString() + "]";
 	}
 

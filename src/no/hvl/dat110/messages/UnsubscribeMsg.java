@@ -1,36 +1,9 @@
 package no.hvl.dat110.messages;
 
-<<<<<<< HEAD
-public class UnsubscribeMsg extends Message
-{
-=======
 public class UnsubscribeMsg extends Message {
 	
 	private String topic;
 	
-	public UnsubscribeMsg(String topic, String user) {
-		super(MessageType.UNSUBSCRIBE, user);
-		this.topic = topic;
-	}
-
-	public String getTopic() {
-		return topic;
-	}
-
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
-
-	@Override
-	public String toString() {
-		return "UnsubscribeMsg [topic = " + topic + super.toString() + "]";
-	}
-	
-	
->>>>>>> 60863c759fcab627ede78c7688d436c55498cee0
-
-	private String topic;
-
 	public UnsubscribeMsg(String topic, String user)
 	{
 		super(MessageType.UNSUBSCRIBE, user);
