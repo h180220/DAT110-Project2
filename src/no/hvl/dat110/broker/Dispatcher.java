@@ -9,49 +9,59 @@ import no.hvl.dat110.common.Stopable;
 import no.hvl.dat110.messages.*;
 import no.hvl.dat110.messagetransport.Connection;
 
-public class Dispatcher extends Stopable {
+public class Dispatcher extends Stopable
+{
 
 	private Storage storage;
 
-	public Dispatcher(Storage storage) {
+	public Dispatcher(Storage storage)
+	{
 		super("Dispatcher");
 		this.storage = storage;
 
 	}
 
 	@Override
-	public void doProcess() {
+	public void doProcess()
+	{
 
 		Collection<ClientSession> clients = storage.getSessions();
 
 		Logger.lg(".");
-		for (ClientSession client : clients) {
+		for (ClientSession client : clients)
+		{
 
 			Message msg = null;
 
-			if (client.hasData()) {
+			if (client.hasData())
+			{
 				msg = client.receive();
 			}
 
 			// a message was received
-			if (msg != null) {
+			if (msg != null)
+			{
 				dispatch(client, msg);
 			}
 		}
 
-		try {
+		try
+		{
 			Thread.sleep(1000);
-		} catch (InterruptedException e) {
+		} catch (InterruptedException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	public void dispatch(ClientSession client, Message msg) {
+	public void dispatch(ClientSession client, Message msg)
+	{
 
 		MessageType type = msg.getType();
 
 		// invoke the appropriate handler method
-		switch (type) {
+		switch (type)
+		{
 
 		case DISCONNECT:
 			onDisconnect((DisconnectMsg) msg);
@@ -85,7 +95,8 @@ public class Dispatcher extends Stopable {
 	}
 
 	// called from Broker after having established the underlying connection
-	public void onConnect(ConnectMsg msg, Connection connection) {
+	public void onConnect(ConnectMsg msg, Connection connection)
+	{
 
 		String user = msg.getUser();
 
@@ -96,7 +107,8 @@ public class Dispatcher extends Stopable {
 	}
 
 	// called by dispatch upon receiving a disconnect message
-	public void onDisconnect(DisconnectMsg msg) {
+	public void onDisconnect(DisconnectMsg msg)
+	{
 
 		String user = msg.getUser();
 
@@ -106,57 +118,62 @@ public class Dispatcher extends Stopable {
 
 	}
 
-	public void onCreateTopic(CreateTopicMsg msg) {
+	public void onCreateTopic(CreateTopicMsg msg)
+	{
 
 		Logger.log("onCreateTopic:" + msg.toString());
 
-		// TODO: create the topic in the broker storage
-		// the topic is contained in the create topic message
-
-		throw new UnsupportedOperationException(TODO.method());
+		storage.createTopic(msg.getTopic());
 
 	}
 
-	public void onDeleteTopic(DeleteTopicMsg msg) {
+	public void onDeleteTopic(DeleteTopicMsg msg)
+	{
 
 		Logger.log("onDeleteTopic:" + msg.toString());
 
-		// TODO: delete the topic from the broker storage
-		// the topic is contained in the delete topic message
-		
-		throw new UnsupportedOperationException(TODO.method());
+		storage.deleteTopic(msg.getTopic());
 	}
 
-	public void onSubscribe(SubscribeMsg msg) {
+	public void onSubscribe(SubscribeMsg msg)
+	{
 
 		Logger.log("onSubscribe:" + msg.toString());
 
-		// TODO: subscribe user to the topic
-		// user and topic is contained in the subscribe message
-		
-		throw new UnsupportedOperationException(TODO.method());
+		String user = msg.getUser();
+		String topic = msg.getTopic();
+
+		storage.addSubscriber(user, topic);
 
 	}
 
-	public void onUnsubscribe(UnsubscribeMsg msg) {
+	public void onUnsubscribe(UnsubscribeMsg msg)
+	{
 
 		Logger.log("onUnsubscribe:" + msg.toString());
 
-		// TODO: unsubscribe user to the topic
-		// user and topic is contained in the unsubscribe message
-		
-		throw new UnsupportedOperationException(TODO.method());
+		String user = msg.getUser();
+		String topic = msg.getTopic();
+
+		storage.removeSubscriber(user, topic);
+
 	}
 
-	public void onPublish(PublishMsg msg) {
+	public void onPublish(PublishMsg msg)
+	{
 
 		Logger.log("onPublish:" + msg.toString());
 
-		// TODO: publish the message to clients subscribed to the topic
-		// topic and message is contained in the subscribe message
-		// messages must be sent used the corresponding client session objects
-		
-		throw new UnsupportedOperationException(TODO.method());
+		String topic = msg.getTopic();
 
+		Set<String> set = storage.getSubscribers(topic);
+
+		for (String s : set)
+		{
+			if (storage.getSession(s) != null)
+			{
+				storage.getSession(s).send(msg);
+			}
+		}
 	}
 }

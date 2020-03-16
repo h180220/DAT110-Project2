@@ -8,27 +8,31 @@ import no.hvl.dat110.common.TODO;
 import no.hvl.dat110.common.Logger;
 import no.hvl.dat110.messagetransport.Connection;
 
-public class Storage {
+public class Storage
+{
 
 	// data structure for managing subscriptions
 	// maps from user to set of topics subscribed to by user
 	protected ConcurrentHashMap<String, Set<String>> subscriptions;
-	
+
 	// data structure for managing currently connected clients
 	// maps from user to corresponding client session object
-	
+
 	protected ConcurrentHashMap<String, ClientSession> clients;
 
-	public Storage() {
+	public Storage()
+	{
 		subscriptions = new ConcurrentHashMap<String, Set<String>>();
 		clients = new ConcurrentHashMap<String, ClientSession>();
 	}
 
-	public Collection<ClientSession> getSessions() {
+	public Collection<ClientSession> getSessions()
+	{
 		return clients.values();
 	}
 
-	public Set<String> getTopics() {
+	public Set<String> getTopics()
+	{
 
 		return subscriptions.keySet();
 
@@ -36,70 +40,70 @@ public class Storage {
 
 	// get the session object for a given user
 	// session object can be used to send a message to the user
-	
-	public ClientSession getSession(String user) {
+
+	public ClientSession getSession(String user)
+	{
 
 		ClientSession session = clients.get(user);
 
 		return session;
 	}
 
-	public Set<String> getSubscribers(String topic) {
+	public Set<String> getSubscribers(String topic)
+	{
 
 		return (subscriptions.get(topic));
 
 	}
 
-	public void addClientSession(String user, Connection connection) {
+	public void addClientSession(String user, Connection connection)
+	{
 
-		// TODO: add corresponding client session to the storage
-		
-		throw new UnsupportedOperationException(TODO.method());
-		
+		ClientSession cs = new ClientSession(user, connection);
+		clients.put(user, cs);
+
 	}
 
-	public void removeClientSession(String user) {
+	public void removeClientSession(String user)
+	{
 
-		// TODO: remove client session for user from the storage
+		ClientSession cs = clients.get(user); // Finner/fjerner
+		clients.remove(user, cs);
 
-		throw new UnsupportedOperationException(TODO.method());
-		
 	}
 
-	public void createTopic(String topic) {
-		
-		if(!subscriptions.containsKey(topic)) {
-			Logger.log(topic);	// Tror denne kanskje er feil......
-			Set<String> subscribers = ConcurrentHashMap.newKeySet();
-			subscriptions.put(topic, subscribers);
-		}
+	public void createTopic(String topic)
+	{
 
-		// TODO: create topic in the storage
+		subscriptions.put(topic, ConcurrentHashMap.newKeySet());
 
-		throw new UnsupportedOperationException(TODO.method());
-	
+//		Set<String> subscribers = ConcurrentHashMap.newKeySet();
+//		subscriptions.put(topic, subscribers);
+
 	}
 
-	public void deleteTopic(String topic) {
+	public void deleteTopic(String topic)
+	{
 
-		// TODO: delete topic from the storage
+		subscriptions.remove(topic);
 
-		throw new UnsupportedOperationException(TODO.method());
-		
 	}
 
-	public void addSubscriber(String user, String topic) {
+	public void addSubscriber(String user, String topic)
+	{
 
-		// TODO: add the user as subscriber to the topic
-		
-		throw new UnsupportedOperationException(TODO.method());
-		
+		Set<String> set = subscriptions.get(topic);
+		set.add(user);
+		subscriptions.put(topic, set);
+
 	}
 
-	public void removeSubscriber(String user, String topic) {
+	public void removeSubscriber(String user, String topic)
+	{
 
-		// TODO: remove the user as subscriber to the topic
+		Set<String> set = subscriptions.get(topic);
+		set.remove(user);
+		subscriptions.put(topic, set);
 
-		throw new UnsupportedOperationException(TODO.method());
 	}
 }
